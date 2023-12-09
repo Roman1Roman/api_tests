@@ -1,6 +1,5 @@
 import json
 import os
-
 import allure
 import requests
 from allure_commons.types import AttachmentType
@@ -9,7 +8,7 @@ from selene.support.conditions import have
 from selene.support.shared import browser
 
 URL = 'https://demowebshop.tricentis.com'
-user_agent = {'User-agent': 'Mozilla/5.0'}
+
 
 def test_login_through_api():
     url = URL + '/login'
@@ -20,17 +19,18 @@ def test_login_through_api():
             'Password': os.getenv('PASSWORD'),
             'RememberMe': False
         }
-        response = requests.post(url=url, data=login_payload, allow_redirects=False, headers=user_agent)
-        assert response.status_code == 200
-        #print(json.dumps(response.json()))
-        allure.attach(body=json.dumps(response.json(), indent=4, ensure_ascii=True),
+        response: Response = requests.post(url=url, json=login_payload, allow_redirects=False)
+        allure.attach(body=response.text,
                       name="Response login", attachment_type=AttachmentType.JSON, extension="json")
+        allure.attach(body=url, name='URL', attachment_type=AttachmentType.TEXT)
     with allure.step('getting cookies'):
         cookies = response.cookies.get('NOPCOMMERCE.AUTH')
+        allure.attach(body=cookies, name='cookies', attachment_type=AttachmentType.TEXT)
+
 
     with allure.step('set cookies on browser'):
         browser.open(URL)
-        browser.driver.add_cookie({'name': "NOPCOMMERCE.AUTH", 'value': cookies})
+        browser.driver.add_cookie({'name': 'NOPCOMMERCE.AUTH', 'value': str(cookies)})
         browser.open(URL)
     with allure.step('browser should have my name on page'):
         browser.element('.account').should(have.text(os.getenv('EMAIL')))
@@ -66,3 +66,5 @@ def test_add_cheap_computer_to_card():
     with allure.step('checking cart for added product'):
         browser.element('.ico-cart').click()
         browser.element('.cart').should(have.text('Build your own cheap computer'))
+
+
