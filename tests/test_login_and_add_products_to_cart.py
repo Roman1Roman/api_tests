@@ -7,7 +7,7 @@ from requests import Response
 from selene.support.conditions import have
 from selene.support.shared import browser
 
-URL = 'https://demowebshop.tricentis.com'
+URL = os.getenv('URL')
 
 
 def test_login_through_api():

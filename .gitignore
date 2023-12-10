@@ -6,6 +6,7 @@ tests/allure-results
 # C extensions
 *.so
 .idea/
+allure-results/
 # Distribution / packaging
 .Python
 build/
